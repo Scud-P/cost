@@ -1,10 +1,6 @@
 package com.coutuapi.cost
 
-import com.coutuapi.cost.grpc.GetAllRawMaterialsResponse
-import com.coutuapi.cost.grpc.GetRawMaterialRequest
-import com.coutuapi.cost.grpc.GetRawMaterialResponse
-import com.coutuapi.cost.grpc.RawMaterialRequest
-import com.coutuapi.cost.grpc.SaveRawMaterialResponse
+import com.coutuapi.cost.grpc.*
 import com.coutuapi.cost.model.RawMaterial
 import com.coutuapi.cost.repository.RawMaterialRepository
 import com.coutuapi.cost.service.RawMaterialServiceImpl
@@ -12,6 +8,7 @@ import io.grpc.stub.StreamObserver
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.slot
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,6 +26,58 @@ class RawMaterialServiceImplTest {
     fun setup() {
         MockKAnnotations.init(this)
         rawMaterialServiceImpl = RawMaterialServiceImpl(rawMaterialRepository)
+    }
+
+    @Test
+    fun editRawMaterial_shouldCallRepo_toEditEntity() {
+        val rawMaterial = RawMaterial(
+            "description", "123", 1.0, 0.9
+        ).apply { id = "someId" }
+
+        val updatedMaterial = RawMaterial(
+            "updatedDescription", "123", 2.0, 1.8
+        ).apply { id = "someId" }
+
+        every { rawMaterialRepository.findByCoutuId("123") } returns rawMaterial
+
+        val savedMaterial = slot<RawMaterial>()
+        every { rawMaterialRepository.save(capture(savedMaterial)) } returns updatedMaterial
+
+        val request = EditRawMaterialRequest.newBuilder()
+            .setId("someId")
+            .setCoutuId("123")
+            .setDescription(updatedMaterial.description)
+            .setCost(updatedMaterial.cost)
+            .setYield(updatedMaterial.yield)
+            .build()
+
+        println("Request ID: ${request.id}")
+        println("Request Description: ${request.description}")
+
+        val responseObserver = object : StreamObserver<EditRawMaterialResponse> {
+            override fun onNext(response: EditRawMaterialResponse?) {
+                assertEquals(updatedMaterial.id, response?.id)
+                assertEquals(updatedMaterial.coutuId, response?.coutuId)
+                assertEquals(updatedMaterial.description, response?.description)
+                assertEquals(updatedMaterial.cost, response?.cost)
+                assertEquals(updatedMaterial.yield, response?.yield)
+            }
+
+            override fun onError(throwable: Throwable?) {
+                fail("Something terrible happened : ${throwable?.message}")
+            }
+
+            override fun onCompleted() {
+                // Nothing to see here
+            }
+        }
+
+        rawMaterialServiceImpl.editRawMaterial(request, responseObserver)
+
+        verify { rawMaterialRepository.findByCoutuId("123") }
+        verify { rawMaterialRepository.save(any()) }
+        assertEquals(savedMaterial.captured.description, updatedMaterial.description)
+        assertEquals(savedMaterial.captured.coutuId, updatedMaterial.coutuId)
     }
 
     @Test
@@ -61,11 +110,11 @@ class RawMaterialServiceImplTest {
             }
 
             override fun onError(throwable: Throwable?) {
-                TODO("Not yet implemented")
+                fail("Something terrible happened : ${throwable?.message}")
             }
 
             override fun onCompleted() {
-                TODO("Not yet implemented")
+                // Nothing to see here
             }
         }
         rawMaterialServiceImpl.saveRawMaterial(request, responseObserver)
@@ -97,10 +146,8 @@ class RawMaterialServiceImplTest {
                 assertEquals(rawMaterial.yield, response.yield)
             }
 
-            override fun onError(t: Throwable?) {
-                if (t != null) {
-                    fail("Unexpected error: ${t.message}")
-                }
+            override fun onError(throwable: Throwable?) {
+                fail("Something terrible happened : ${throwable?.message}")
             }
 
             override fun onCompleted() {
