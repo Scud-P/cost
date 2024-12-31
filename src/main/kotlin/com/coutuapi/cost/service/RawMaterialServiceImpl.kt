@@ -3,7 +3,6 @@ package com.coutuapi.cost.service
 import com.coutuapi.cost.grpc.*
 import com.coutuapi.cost.model.RawMaterial
 import com.coutuapi.cost.repository.RawMaterialRepository
-import com.google.protobuf.Empty
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import org.springframework.stereotype.Service
@@ -12,6 +11,30 @@ import org.springframework.stereotype.Service
 class RawMaterialServiceImpl(
     private val mongoRepository: RawMaterialRepository
 ) : RawMaterialServiceGrpc.RawMaterialServiceImplBase() {
+
+    override fun deleteRawMaterial(
+        request: DeleteRawMaterialRequest?,
+        responseObserver: StreamObserver<DeleteRawMaterialResponse>
+    ) {
+        if(request == null) {
+            responseObserver.onError(IllegalArgumentException("Request cannot be null"))
+            return
+        }
+        val existingMaterial = mongoRepository.findByCoutuId(request.coutuId)
+            ?: throw NoSuchElementException("RawMaterial with Coutu ID '${request.coutuId}' not found")
+
+        mongoRepository.delete(existingMaterial)
+
+        val response = DeleteRawMaterialResponse.newBuilder()
+            .setStatus("SUCCESS")
+            .setMessage("Raw material saved successfully.")
+            .build()
+
+        responseObserver.onNext(response)
+        responseObserver.onCompleted()
+    }
+
+
 
     override fun editRawMaterial(
         request: EditRawMaterialRequest?,
@@ -88,7 +111,7 @@ class RawMaterialServiceImpl(
         responseObserver?.onCompleted()
     }
 
-    override fun getAllRawMaterials(request: Empty?, responseObserver: StreamObserver<GetAllRawMaterialsResponse>?) {
+    override fun getAllRawMaterials(request: GetAllRawMaterialsRequest, responseObserver: StreamObserver<GetAllRawMaterialsResponse>?) {
 
         try {
             val allRawMaterials: MutableList<RawMaterial?> = mongoRepository.findAll()

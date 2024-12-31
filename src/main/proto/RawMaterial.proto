@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package com.coutuapi.cost.grpc;
 
-import "google/protobuf/empty.proto";
-
 option java_multiple_files = true;
 option java_package = "com.coutuapi.cost.grpc";
 option java_outer_classname = "RawMaterialProto";
@@ -11,8 +9,22 @@ option java_outer_classname = "RawMaterialProto";
 service RawMaterialService {
   rpc SaveRawMaterial (RawMaterialRequest) returns (SaveRawMaterialResponse);
   rpc GetRawMaterial (GetRawMaterialRequest) returns (GetRawMaterialResponse);
-  rpc GetAllRawMaterials (google.protobuf.Empty) returns (GetAllRawMaterialsResponse);
+  rpc GetAllRawMaterials (GetAllRawMaterialsRequest) returns (GetAllRawMaterialsResponse);
   rpc EditRawMaterial (EditRawMaterialRequest) returns (EditRawMaterialResponse);
+  rpc DeleteRawMaterial (DeleteRawMaterialRequest) returns (DeleteRawMaterialResponse);
+}
+
+message GetAllRawMaterialsRequest {
+  // Working around the Empty
+}
+
+message DeleteRawMaterialRequest {
+  string coutuId = 1;
+}
+
+message DeleteRawMaterialResponse {
+  string status = 1;
+  string message = 2;
 }
 
 message EditRawMaterialRequest {

@@ -169,6 +169,9 @@ class RawMaterialServiceImplTest {
 
         every { rawMaterialRepository.findAll() } returns rawMaterials
 
+        val request = GetAllRawMaterialsRequest.newBuilder()
+            .build()
+
         val responseObserver = object : StreamObserver<GetAllRawMaterialsResponse> {
             override fun onNext(response: GetAllRawMaterialsResponse?) {
                 assertEquals(2, response?.rawMaterialsCount ?: 0)
@@ -198,7 +201,7 @@ class RawMaterialServiceImplTest {
             }
         }
 
-        rawMaterialServiceImpl.getAllRawMaterials(null, responseObserver)
+        rawMaterialServiceImpl.getAllRawMaterials(request, responseObserver)
         verify { rawMaterialRepository.findAll() }
     }
 }
