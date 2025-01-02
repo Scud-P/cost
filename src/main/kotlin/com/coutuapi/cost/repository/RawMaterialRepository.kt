@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface RawMaterialRepository : MongoRepository<RawMaterial?, String?> {
     fun findByCoutuId(coutuId: String): RawMaterial?
+    fun findAllByCoutuIdIn(ingredientCodes: List<String>): List<RawMaterial>
 }

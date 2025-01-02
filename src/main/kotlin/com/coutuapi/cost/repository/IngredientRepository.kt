@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface IngredientRepository : MongoRepository<Ingredient?, String?>{
+    fun findByIngredientCode(ingredientCode: String): Ingredient?
 }

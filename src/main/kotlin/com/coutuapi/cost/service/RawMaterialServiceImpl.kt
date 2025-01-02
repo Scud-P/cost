@@ -27,7 +27,7 @@ class RawMaterialServiceImpl(
 
         val response = DeleteRawMaterialResponse.newBuilder()
             .setStatus("SUCCESS")
-            .setMessage("Raw material saved successfully.")
+            .setMessage("Raw material deleted successfully.")
             .build()
 
         responseObserver.onNext(response)
