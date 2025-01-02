@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package com.coutuapi.cost.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.coutuapi.cost.grpc";
+option java_outer_classname = "IngredientProto";
+
+service IngredientService {
+  rpc SaveIngredient (IngredientRequest) returns (SaveIngredientResponse);
+  rpc GetIngredient (GetIngredientRequest) returns (GetIngredientResponse);
+  rpc GetAllIngredients (GetAllIngredientsRequest) returns (GetAllIngredientsResponse);
+  rpc EditIngredient (EditIngredientRequest) returns (EditIngredientResponse);
+  rpc DeleteIngredient (DeleteIngredientRequest) returns (DeleteIngredientResponse);
+}
+
+message GetAllIngredientsRequest {
+  // Working around the Empty
+}
+
+message DeleteIngredientRequest {
+  string ingredientCode = 1;
+}
+
+message DeleteIngredientResponse {
+  string status = 1;
+  string message = 2;
+}
+
+message EditIngredientRequest {
+  string id = 1;
+  string ingredientCode = 2;
+  string description = 3;
+  repeated string rawMaterials = 4;
+  double cost = 5;
+}
+
+
+message EditIngredientResponse {
+    string id = 1;
+    string ingredientCode = 2;
+    string description = 3;
+    repeated string rawMaterials = 4;
+    double cost = 5;
+}
+
+message IngredientRequest {
+  string id = 1;
+  string ingredientCode = 2;
+  string description = 3;
+  repeated string rawMaterials = 4;
+  double cost = 5;
+}
+
+message SaveIngredientResponse {
+  string status = 1;
+  string message = 2;
+}
+
+message GetIngredientRequest {
+  string ingredientCode = 1;
+}
+
+message GetIngredientResponse {
+  string id = 1;
+  string ingredientCode = 2;
+  string description = 3;
+  repeated string rawMaterials = 4;
+  double cost = 5;
+}
+
+message GetAllIngredientsResponse {
+  repeated GetIngredientResponse ingredients = 1;
+}
