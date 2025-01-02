@@ -28,7 +28,6 @@ class IngredientCostService(
         ingredients?.forEach { ingredient ->
             totalCost += calculateCost(ingredient)
         }
-
         return totalCost
     }
 }
